@@ -26,4 +26,9 @@ Route::group(['prefix' => 'v1'], function () {
     // routes for assigning tasks to our todo projects
     Route::get('/tasks', [\App\Http\Controllers\Api\Task\TaskController::class, 'index']);
     Route::post('/tasks', [\App\Http\Controllers\Api\Task\TaskController::class, 'store']);
+    Route::get('/tasks/{slug}', [\App\Http\Controllers\Api\Task\TaskController::class, 'show']);
+    //update assigned task  with mark staus as completed or not completed
+    Route::put('/tasks/{slug}', [\App\Http\Controllers\Api\Task\TaskController::class, 'update']);
+    //delete assigned task
+    Route::delete('/tasks/{slug}', [\App\Http\Controllers\Api\Task\TaskController::class, 'destroy']);
 });

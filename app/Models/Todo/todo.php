@@ -14,7 +14,7 @@ class todo extends Model {
     protected $fillable = ['name', 'slug', 'description', 'status'];
 
     public function tasks() {
-        return $this->hasMany(Task::class);
+        return $this->hasMany(Task::class, 'todo_id');
     }
 
 }

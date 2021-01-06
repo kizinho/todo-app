@@ -41,8 +41,13 @@ class TaskController extends Controller {
      * @param  \App\Models\task  $task
      * @return \Illuminate\Http\Response
      */
-    public function show(task $task) {
-        //
+    public function show($slug) {
+        $data['task'] = Task::whereSlug($slug)->firstOrFail();
+        return [
+            'status' => 200,
+            'message' => 'ok',
+            'body' => $data,
+        ];
     }
 
     /**
@@ -52,8 +57,8 @@ class TaskController extends Controller {
      * @param  \App\Models\task  $task
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, task $task) {
-        //
+    public function update(Request $request, $slug) {
+        return static::updateTask($request, $slug);
     }
 
     /**
@@ -62,8 +67,14 @@ class TaskController extends Controller {
      * @param  \App\Models\task  $task
      * @return \Illuminate\Http\Response
      */
-    public function destroy(task $task) {
-        //
+    public function destroy($slug) {
+        $task = Task::whereSlug($slug)->firstOrFail();
+        $task->delete();
+        return [
+            'status' => 201,
+            'message' => 'ok',
+            'body' => 'Task Soft deleted',
+        ];
     }
 
     public static function createTask(Request $request) {
@@ -71,7 +82,7 @@ class TaskController extends Controller {
         $rules = ([
             'title' => ['required', 'unique:tasks'],
             'todo_id' => ['required'],
-            'due_date' => ['required', 'date_format:Y-m-d H:i:s']
+            'due_date' => ['required', 'date_format:Y-m-d']
         ]);
         $error = static::getErrorMessage($input, $rules);
         if ($error) {
@@ -81,6 +92,38 @@ class TaskController extends Controller {
 
         $data['task'] = Task::create($input);
 
+        return [
+            'status' => 201,
+            'message' => 'ok',
+            'body' => $data,
+        ];
+    }
+
+    public static function updateTask($request, $slug) {
+        $input = $request->all();
+        $rules = ([
+            'title' => ['required'],
+            'todo_id' => ['required'],
+            'status' => ['required'],
+            'due_date' => ['required', 'date_format:Y-m-d']
+        ]);
+        $error = static::getErrorMessage($input, $rules);
+        if ($error) {
+            return $error;
+        }
+        $input['slug'] = str_slug($request->title);
+        $check_title_unique = Task::whereSlug($slug)->firstOrFail();
+        if ($check_title_unique->title == $request->title) {
+            $check_title_unique->update([
+                'title' => $request->title,
+                'todo_id' => $request->todo_id,
+                'status' => $request->status,
+                'due_date' => $request->due_date,
+            ]);
+        } else {
+            $check_title_unique->update($input);
+        }
+        $data['todo'] = $check_title_unique;
         return [
             'status' => 201,
             'message' => 'ok',

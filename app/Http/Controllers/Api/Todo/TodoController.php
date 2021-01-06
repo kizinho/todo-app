@@ -73,7 +73,7 @@ class TodoController extends Controller {
         return [
             'status' => 201,
             'message' => 'ok',
-            'body' => 'Soft deleted',
+            'body' => 'Todo Soft deleted',
         ];
     }
 
@@ -98,7 +98,7 @@ class TodoController extends Controller {
         ];
     }
 
-    public function updateTodo($request, $slug) {
+    public static function updateTodo($request, $slug) {
         $input = $request->all();
         $rules = ([
             'name' => ['required'],
